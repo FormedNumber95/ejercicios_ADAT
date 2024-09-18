@@ -19,18 +19,18 @@ public class ejercicio1 {
 	 */
 	public static void main(String[] args) {
 		try {
-			DataOutputStream dis=new DataOutputStream(new FileOutputStream(new 
+			DataOutputStream dos=new DataOutputStream(new FileOutputStream(new 
 					File("./carpeta/Departamentos.dat")));
-			dis.writeInt(1);
-			dis.writeChars("Dep1");
-			dis.writeChars("Loc1");
-			dis.writeInt(2);
-			dis.writeChars("Dep2");
-			dis.writeChars("Loc2");
-			dis.writeInt(3);
-			dis.writeChars("Dep3");
-			dis.writeChars("Loc3");
-			dis.close();
+			dos.writeInt(1);
+			dos.writeChars("Dep1\t");
+			dos.writeChars("Loc1\t");
+			dos.writeInt(2);
+			dos.writeChars("Dep2\t");
+			dos.writeChars("Loc2\t");
+			dos.writeInt(3);
+			dos.writeChars("Dep3\t");
+			dos.writeChars("Loc3\t");
+			dos.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

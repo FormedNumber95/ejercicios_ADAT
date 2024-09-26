@@ -7,26 +7,45 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-
+/**
+ * Clase ud2_1.
+ */
 public class ud2_1 {
 	
+	/**
+	 * Crear directorio.
+	 *
+	 * @param ruta La ruta donde se va a crear el directorio
+	 * @param nombre El nombre del directorio
+	 */
 	public static void crearDirectorio(String ruta,String nombre) {
 		File directorio=new File(ruta+File.separator+nombre);
 		directorio.mkdir();
 	}
 	
+	/**
+	 * Lista los archivos y directorios de la ruta.
+	 *
+	 * @param ruta La ruta a listar
+	 */
 	public static void listarDirectorio(String ruta) {
 		File directorio=new File(ruta);
 		File[] contenido = directorio.listFiles();
 		for(File archivo:contenido) {
 			if (archivo.isDirectory()) {
-                System.out.println("Directorio " + archivo.getName());
+                System.out.println("Directorio "+archivo.getName());
             } else if (archivo.isFile()) {
-                System.out.println("Archivo " + archivo.getName());
+                System.out.println("Archivo "+archivo.getName());
             }
 		}
 	}
 	
+	/**
+	 * Copiar archivo de una ruta a otra.
+	 *
+	 * @param origen La ruta origen
+	 * @param destino La ruta destino
+	 */
 	public static void copiarArchivo(String origen,String destino) {
 		Path pathOrigen = Paths.get(origen);
         Path pathDestino = Paths.get(destino);
@@ -38,11 +57,22 @@ public class ud2_1 {
 		}
 	}
 	
+	/**
+	 * Mover archivo de una ruta a otra.
+	 *
+	 * @param origen La ruta origen
+	 * @param destino La ruta destino
+	 */
 	public static void moverArchivo(String origen,String destino) {
 		copiarArchivo(origen, destino);
 		borrarArchivo(origen);
 	}
 	
+	/**
+	 * Borrar archivo de una ruta concreta.
+	 *
+	 * @param ruta La ruta del archivo a borrar
+	 */
 	public static void borrarArchivo(String ruta) {
 		File f=new File(ruta);
 		if(f.isFile()||f.isDirectory()&&f.listFiles().length==0) {
@@ -53,6 +83,11 @@ public class ud2_1 {
 		}
 	}
 	
+	/**
+	 * Menu de las opciones.
+	 *
+	 * @param numeroElegido La opcion elegida
+	 */
 	public static void menu(int numeroElegido) {
 		Scanner input=new Scanner(System.in);
 		switch (numeroElegido) {
@@ -93,6 +128,12 @@ public class ud2_1 {
 		}
 	}
 	
+	/**
+	 * Metodo main que ejecuta el programa.
+	 *
+	 * @param args Los argumentos que se escriben desde la linea de comandos, 
+	 * nada
+	 */
 	public static void main(String[] args) {
 		Scanner input=new Scanner(System.in);
 		int numeroElegido=0;

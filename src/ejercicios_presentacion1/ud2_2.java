@@ -12,9 +12,15 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+/**
+ * La clase ud2_2.
+ */
 public class ud2_2 {
 	
-	public static void generarFicheroCSV() {
+	/**
+	 * Generar fichero CSV de athlete_events.csv.
+	 */
+	private static void generarFicheroCSV() {
         try (BufferedReader br = new BufferedReader(new FileReader
         		("Datos_Olimpiadas/athlete_events.csv"));
              BufferedWriter bw = new BufferedWriter(new FileWriter
@@ -44,11 +50,11 @@ public class ud2_2 {
             	}
                 bw.write("\"Games\",\"Year\",\"Season\",\"City\"\n");
                 while ((linea = br.readLine()) != null) {
+                	values=linea.split(",");
                     String games=values[indiceGames];
                     String year=values[indiceYear];
                     String season=values[indiceSeason];
                     String city=values[indiceCity];
-
                     bw.write(games+","+year+","+season+","+city+"\n");
                 }
                 System.out.println("Fichero generado");
@@ -58,8 +64,14 @@ public class ud2_2 {
         }
     }
 	
+	/**
+	 * Mostrar deportistas que contengan la cadena a buscar.
+	 *
+	 * @param cadenaABuscar La cadena a buscar
+	 */
 	private static void mostrarDeportistas(String cadenaABuscar) {
-		try (BufferedReader br = new BufferedReader(new FileReader("Datos_Olimpiadas/athlete_events.csv"))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(
+				"Datos_Olimpiadas/athlete_events.csv"))) {
 			String linea;
             String leido = br.readLine();
             if (leido!=null) {
@@ -69,6 +81,7 @@ public class ud2_2 {
             	int indiceAge=-1;
             	int indiceHeight=-1;
             	int indiceWeight=-1;
+            	int indiceParticipacion=-1;
             	String[] values=leido.split(",");
             	for(int i=0;i<values.length;i++) {
             		String valor=values[i];
@@ -90,6 +103,9 @@ public class ud2_2 {
             		if(valor.equals("\"Weight\"")) {
             			indiceWeight=i;
             		}
+            		if(valor.equals("\"Games\"")) {
+            			indiceParticipacion=i;
+            		}
             	}
             	int i=0;
             	while ((linea=br.readLine()) != null) {
@@ -102,9 +118,11 @@ public class ud2_2 {
 	                     String edad=values[indiceAge];
 	                     String altura=values[indiceHeight];
 	                     String peso=values[indiceWeight];
+	                     String participacion=values[indiceParticipacion];
 	                     System.out.println("ID: "+ID+", Nombre: "+nombre+
 	                    		 ", Sexo: "+sexo+", Edad: "+edad+", Altura: "+
-	                    		 altura+", Peso: "+peso);
+	                    		 altura+", Peso: "+peso+", Participacion: "+
+	                    		 participacion);
             		}
                  }
             	 if(i==0) {
@@ -119,13 +137,21 @@ public class ud2_2 {
 		}
 	}
 	
-	private static void buscarPorDeporteYAnio(String deporte,String anio,int temporada) {
-		//Sport,Year,Season
+	/**
+	 * Buscar por deporte, anio y temporada.
+	 *
+	 * @param deporte El deporte a buscar
+	 * @param anio El anio a buscar
+	 * @param temporada La temporada a buscar
+	 */
+	private static void buscarPorDeporteYAnio(String deporte,String anio,
+			int temporada) {
 		String temp="Winter";
 		if(temporada==1) {
 			temp="Summer";
 		}
-		try (BufferedReader br=new BufferedReader(new FileReader("Datos_Olimpiadas/athlete_events.csv"))) {
+		try (BufferedReader br=new BufferedReader(new FileReader(
+				"Datos_Olimpiadas/athlete_events.csv"))) {
 			String linea;
             String leido=br.readLine();
             if (leido!=null) {
@@ -206,6 +232,23 @@ public class ud2_2 {
 		}
 	}
 	
+	/**
+	 * Aniade deportista con todos los datos.
+	 *
+	 * @param nombre El nombre del deportista
+	 * @param sexo El sexo del deportista
+	 * @param edad La edad del deportista
+	 * @param altura La altura del deportista
+	 * @param peso El peso del deportista
+	 * @param equipo El equipo del deportista
+	 * @param noc El noc del deportista
+	 * @param anio El anio en el que participo
+	 * @param temporada La temporada en la que participo
+	 * @param ciudad La ciudad en la que participo
+	 * @param deporte El deporte en el que participo
+	 * @param evento El evento en el que participo
+	 * @param medalla La medalla que consiguio
+	 */
 	private static void AniadeDeportista(String nombre,int sexo,int edad,
 			int altura,float peso, String equipo,String noc,String anio,
 			int temporada,String ciudad,String deporte,
@@ -267,6 +310,13 @@ public class ud2_2 {
 		}
 	}
 	
+	/**
+	 * Metodo main que ejecuta el programa visualizando el menu y escogiendo 
+	 * la opcion adecuada.
+	 *
+	 * @param args Los argumentos que recive desde la linea de comandos, 
+	 * ninguno
+	 */
 	public static void main(String[] args) {
 		Scanner input=new Scanner(System.in);
 		System.out.println("1. Generar fichero csv de olimpiadas");
@@ -281,7 +331,7 @@ public class ud2_2 {
 			break;
 		case 2:
 			System.out.println("Dime a quien quieres buscar");
-			String persona=input.next();
+			String persona=input.nextLine();
 			mostrarDeportistas(persona);
 			break;
 		case 3:

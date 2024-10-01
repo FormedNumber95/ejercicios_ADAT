@@ -76,10 +76,11 @@ public class ud2_3 {
                 }
                 lineNumber++;
             }
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        TransformerFactory transformerFactory=TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File("Datos_Olimpiadas/olimpiadas.xml"));
+        StreamResult result = new StreamResult(new 
+        		File("Datos_Olimpiadas/olimpiadas.xml"));
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.transform(source, result);
 		} catch (IOException e) {
@@ -174,14 +175,21 @@ public class ud2_3 {
             		String evento=values2[indiceEvent];
             		String medalla=values2[indiceMedal];
             		if(!mapa.containsKey(id)) {
-            			mapa.put(id+","+nombre+","+sexo+","+altura+","+peso, new ArrayList<String>());
+            			mapa.put(id+","+nombre+","+sexo+","+altura+","+peso,
+            					new ArrayList<String>());
             		}
             		mapa.get(id+","+nombre+","+sexo+","+altura+","+peso).add(
             				deporte+","+edad+","+noc+","+equipo+","+juegos+","+
             		ciudad+","+evento+","+medalla);
             	}
             }
-            DocumentBuilderFactory docFactory=DocumentBuilderFactory.newInstance();
+            for(int i=0;i<values.length;i++) {
+            	if(values[i].charAt(0)=='\"') {
+            		values[i]=values[i].substring(1,values[i].length()-1);
+            	}
+            }
+            DocumentBuilderFactory docFactory=DocumentBuilderFactory.
+            		newInstance();
 			DocumentBuilder docBuilder;
 			docBuilder = docFactory.newDocumentBuilder();
 			Document doc=docBuilder.newDocument();
@@ -193,24 +201,30 @@ public class ud2_3 {
 				String[] persona=entrada.getKey().split(",");
 				for(int i=0;i<persona.length;i++) {
 					if(persona[i].charAt(0)=='\"') {
-						persona[i]=persona[i].substring(1,persona[i].length()-1);
-					}
-					Element person=null;
-					if(values[i].equals("\"ID\"")) {
-						deportista.setAttribute("id", persona[i]);
-					}else {
-						if(values[i].charAt(0)=='\"') {
-               			 person=doc.createElement(values[i].
-               					 substring(1,values[i].length()-1));
-               		}else {
-               			 person=doc.createElement(values[i]);
-               		}
-               		person.appendChild(doc.createTextNode(
-               				persona[i]));
-          			 	deportista.appendChild(person);
+						persona[i]=persona[i].substring(1,persona[i].
+								length()-1);
 					}
 				}
-				deportistas.appendChild(deportista);
+				deportista.setAttribute("id", persona[0]);
+				aniadeElemento(doc, deportista, "nombre", persona[1]);
+				aniadeElemento(doc, deportista, "sexo", persona[2]);
+				aniadeElemento(doc, deportista, "altura", persona[3]);
+				aniadeElemento(doc, deportista, "peso", persona[4]);
+				for(String juego:mapa.get(persona[0]+","+persona[1]+","
+				+persona[2]+","+persona[3]+","+persona[4])) {
+					Element deporte=doc.createElement("Deporte");
+					String[] elementosDeporte= juego.split(",");
+					for(int i=0;i<elementosDeporte.length;i++) {
+						if(elementosDeporte[i].charAt(0)=='\"') {
+							elementosDeporte[i]=elementosDeporte[i].substring
+									(1, elementosDeporte[i].length()-1);
+						}
+					}
+					deporte.setAttribute("nombre", elementosDeporte[0]);
+					//revisar csv para ver como hacer mas subindices por deporte y luego por participacion (idea: usar un mapa)
+				}
+				
+  			 	deportistas.appendChild(deportista);
 			}
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	        Transformer transformer = transformerFactory.newTransformer();
@@ -229,6 +243,12 @@ public class ud2_3 {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void aniadeElemento(Document doc, Element rowElement, String header, String texto) {
+		Element elemento=doc.createElement(header);
+		elemento.appendChild(doc.createTextNode(texto));
+		rowElement.appendChild(elemento);
 	}
 
 	public static void main(String[] args) {

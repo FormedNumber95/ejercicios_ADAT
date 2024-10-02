@@ -7,12 +7,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Scanner;
+import java.util.jar.Attributes;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -23,6 +27,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class ud2_3 {
 	
@@ -233,21 +239,11 @@ public class ud2_3 {
 									(1, elementosDeporte[i].length()-1);
 						}
 					}
+					
 					deporte.setAttribute("nombre", elementosDeporte[0]);
-					for(String depo:mapaDeportes.get(elementosDeporte[0])) {
-						String[] partic=depo.split(",");
-						Element participacion=doc.createElement("participacion");
-						participacion.setAttribute("age",partic[0] );
-						Element equipo=doc.createElement("equipo");
-						equipo.setAttribute("abbr", partic[1]);
-						equipo.setTextContent(partic[2]);
-						aniadeElemento(doc, participacion, "juegos", partic[3]+
-								" - "+partic[4]);
-						aniadeElemento(doc, participacion, "evento", partic[5]);
-						aniadeElemento(doc, participacion, "medalla",partic[6]);
-					}
+					aniadirParticipacion(mapaDeportes, doc, deporte, elementosDeporte);
+					deportista.appendChild(deporte);
 				}
-				
   			 	deportistas.appendChild(deportista);
   			 	System.out.println(cont);
   			 	cont++;
@@ -270,11 +266,39 @@ public class ud2_3 {
 			e.printStackTrace();
 		}
 	}
+
+	private static void aniadirParticipacion(HashMap<String, ArrayList<String>> mapaDeportes, Document doc, Element deporte, String[] elementosDeporte) {
+		 StringBuilder juegosBuilder = new StringBuilder();
+		 ArrayList<String> depos=mapaDeportes.get(elementosDeporte[0]);
+		 Iterator<String> iterator = depos.iterator();
+		while(iterator.hasNext()) {
+			iterator.next();
+			Element participacion=doc.createElement("participacion");
+			participacion.setAttribute("age",elementosDeporte[1]);
+			Element equipo=doc.createElement("equipo");
+			equipo.setAttribute("abbr", elementosDeporte[2]);
+			equipo.setTextContent(elementosDeporte[3]);
+			participacion.appendChild(equipo);
+			 juegosBuilder.setLength(0);
+		        juegosBuilder.append(elementosDeporte[4]).append(" - ").append(elementosDeporte[5]);
+			aniadeElemento(doc, participacion, "juegos", juegosBuilder.toString());
+			aniadeElemento(doc, participacion, "evento", elementosDeporte[6]);
+			aniadeElemento(doc, participacion, "medalla",elementosDeporte[7]);
+			deporte.appendChild(participacion);
+			equipo=null;
+			participacion=null;
+		}
+		System.gc();
+	}
 	
 	private static void aniadeElemento(Document doc, Element rowElement, String header, String texto) {
 		Element elemento=doc.createElement(header);
 		elemento.appendChild(doc.createTextNode(texto));
 		rowElement.appendChild(elemento);
+	}
+	
+	private static void mostrarListado() {
+		 
 	}
 
 	public static void main(String[] args) {
@@ -292,6 +316,7 @@ public class ud2_3 {
 			crearXmlDeportistas();
 			break;
 		case 3:
+			mostrarListado();
 			break;
 		}
 		

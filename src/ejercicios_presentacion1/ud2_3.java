@@ -97,6 +97,8 @@ public class ud2_3 {
 	private static void crearXmlDeportistas() {
 		HashMap<String, ArrayList<String>> mapa=new HashMap<String,
     			ArrayList<String>>();
+		HashMap<String, ArrayList<String>> mapaDeportes=new HashMap<String,
+				ArrayList<String>>();
 		try (BufferedReader br = new BufferedReader(new FileReader(
 				"Datos_Olimpiadas/athlete_events.csv"))) {
 			String linea;
@@ -161,6 +163,11 @@ public class ud2_3 {
             	}
             	while ((linea=br.readLine()) != null) {
             		String[] values2=linea.split(",");
+            		for(int i=0;i<values2.length;i++) {
+            			if(values2[i].contains("\"")) {
+            				values2[i]=values2[i].substring(1,values2[i].length()-1);
+            			}
+            		}
             		String id=values2[indiceID];
             		String nombre=values2[indiceName];
             		String sexo=values2[indiceSex];
@@ -181,6 +188,11 @@ public class ud2_3 {
             		mapa.get(id+","+nombre+","+sexo+","+altura+","+peso).add(
             				deporte+","+edad+","+noc+","+equipo+","+juegos+","+
             		ciudad+","+evento+","+medalla);
+            		if(!mapaDeportes.containsKey(deporte)) {
+						mapaDeportes.put(deporte, new ArrayList<String>());
+					}
+					mapaDeportes.get(deporte).add(edad+","+noc+","+equipo+","+
+					juegos+","+ciudad+","+evento+","+medalla);
             	}
             }
             for(int i=0;i<values.length;i++) {
@@ -195,6 +207,7 @@ public class ud2_3 {
 			Document doc=docBuilder.newDocument();
 			Element deportistas=doc.createElement("deportistas");
 			doc.appendChild(deportistas);
+			int cont=1;
 			for(Entry<String,ArrayList<String>>entrada:
         		mapa.entrySet()){
 				Element deportista=doc.createElement("deportista");
@@ -212,7 +225,7 @@ public class ud2_3 {
 				aniadeElemento(doc, deportista, "peso", persona[4]);
 				for(String juego:mapa.get(persona[0]+","+persona[1]+","
 				+persona[2]+","+persona[3]+","+persona[4])) {
-					Element deporte=doc.createElement("Deporte");
+					Element deporte=doc.createElement("deporte");
 					String[] elementosDeporte= juego.split(",");
 					for(int i=0;i<elementosDeporte.length;i++) {
 						if(elementosDeporte[i].charAt(0)=='\"') {
@@ -221,10 +234,23 @@ public class ud2_3 {
 						}
 					}
 					deporte.setAttribute("nombre", elementosDeporte[0]);
-					//revisar csv para ver como hacer mas subindices por deporte y luego por participacion (idea: usar un mapa)
+					for(String depo:mapaDeportes.get(elementosDeporte[0])) {
+						String[] partic=depo.split(",");
+						Element participacion=doc.createElement("participacion");
+						participacion.setAttribute("age",partic[0] );
+						Element equipo=doc.createElement("equipo");
+						equipo.setAttribute("abbr", partic[1]);
+						equipo.setTextContent(partic[2]);
+						aniadeElemento(doc, participacion, "juegos", partic[3]+
+								" - "+partic[4]);
+						aniadeElemento(doc, participacion, "evento", partic[5]);
+						aniadeElemento(doc, participacion, "medalla",partic[6]);
+					}
 				}
 				
   			 	deportistas.appendChild(deportista);
+  			 	System.out.println(cont);
+  			 	cont++;
 			}
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	        Transformer transformer = transformerFactory.newTransformer();

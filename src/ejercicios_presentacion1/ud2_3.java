@@ -9,14 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.util.jar.Attributes;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -28,7 +25,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ud2_3 {
 	
@@ -99,7 +97,40 @@ public class ud2_3 {
 			e.printStackTrace();
 		}
 	}
-	
+	class Deportista {
+		String id;
+		String nombre;
+		String sexo;
+		String altura;
+		String peso;
+		String deporte;
+		String edad;
+		String noc;
+		String equipo;
+		String juegos;
+		String ciudad;
+		String evento;
+		String medalla;
+		//TODO Acabar La clase Deportista para luego añadir los objetos al xml y la lgica de añadir objetos al mapa, tiene que estar dentro de la clase xmlDeportistaIterable
+		//ver si asi se arregla el problema de velocidad y el problema de solo leer 451 de las >135k lineas
+	}
+	class XmlDeportistaIterable implements Iterable, Iterator {
+		public Iterator iterator() {
+			return this;
+		}
+
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public Deportista next() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
 	private static void crearXmlDeportistas() {
 		HashMap<String, ArrayList<String>> mapa=new HashMap<String,
     			ArrayList<String>>();
@@ -298,7 +329,11 @@ public class ud2_3 {
 	}
 	
 	private static void mostrarListado() {
-		 
+		 try {
+			XMLReader lectorXML=XMLReaderFactory.createXMLReader();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
@@ -319,6 +354,6 @@ public class ud2_3 {
 			mostrarListado();
 			break;
 		}
-		
+		input.close();
 	}
 }

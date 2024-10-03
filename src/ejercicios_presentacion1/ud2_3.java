@@ -10,10 +10,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -24,8 +27,11 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ud2_3 {
@@ -97,45 +103,8 @@ public class ud2_3 {
 			e.printStackTrace();
 		}
 	}
-	class Deportista {
-		String id;
-		String nombre;
-		String sexo;
-		String altura;
-		String peso;
-		String deporte;
-		String edad;
-		String noc;
-		String equipo;
-		String juegos;
-		String ciudad;
-		String evento;
-		String medalla;
-		//TODO Acabar La clase Deportista para luego añadir los objetos al xml y la lgica de añadir objetos al mapa, tiene que estar dentro de la clase xmlDeportistaIterable
-		//ver si asi se arregla el problema de velocidad y el problema de solo leer 451 de las >135k lineas
-	}
-	class XmlDeportistaIterable implements Iterable, Iterator {
-		public Iterator iterator() {
-			return this;
-		}
-
-		@Override
-		public boolean hasNext() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public Deportista next() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
 	private static void crearXmlDeportistas() {
-		HashMap<String, ArrayList<String>> mapa=new HashMap<String,
-    			ArrayList<String>>();
-		HashMap<String, ArrayList<String>> mapaDeportes=new HashMap<String,
-				ArrayList<String>>();
+		ArrayList<Deportista> lstDeportistas=new ArrayList<Deportista>();
 		try (BufferedReader br = new BufferedReader(new FileReader(
 				"Datos_Olimpiadas/athlete_events.csv"))) {
 			String linea;
@@ -205,31 +174,38 @@ public class ud2_3 {
             				values2[i]=values2[i].substring(1,values2[i].length()-1);
             			}
             		}
-            		String id=values2[indiceID];
+            		int id=Integer.parseInt(values2[indiceID]);
             		String nombre=values2[indiceName];
-            		String sexo=values2[indiceSex];
-            		String altura=values2[indiceHeight];
-            		String peso=values2[indiceWeight];
+            		char sexo=values2[indiceSex].charAt(0);
+            		if(values2[indiceHeight].equals("NA")) {
+            			values2[indiceHeight]="-1";
+            		}
+            		int altura=Integer.parseInt(values2[indiceHeight]);
+            		if(values2[indiceWeight].equals("NA")) {
+            			values2[indiceWeight]="-1";
+            		}
+            		float peso=Float.parseFloat(values2[indiceWeight]);
             		String deporte=values2[indiceSport];
-            		String edad=values2[indiceAge];
+            		if(values2[indiceAge].equals("NA")) {
+            			values2[indiceAge]="-1";
+            		}
+            		int edad=Integer.parseInt(values2[indiceAge]);
             		String noc=values2[indiceNOC];
             		String equipo=values2[indiceTeam];
             		String juegos=values2[indiceGames];
             		String ciudad=values2[indiceCity];
             		String evento=values2[indiceEvent];
             		String medalla=values2[indiceMedal];
-            		if(!mapa.containsKey(id)) {
-            			mapa.put(id+","+nombre+","+sexo+","+altura+","+peso,
-            					new ArrayList<String>());
+            		Deportista dep=new Deportista(id, nombre, sexo, altura, peso);
+            		if(!lstDeportistas.contains(dep)) {
+            			lstDeportistas.add(dep);
+            		}else {
+            			dep=lstDeportistas.get(lstDeportistas.indexOf(dep));
             		}
-            		mapa.get(id+","+nombre+","+sexo+","+altura+","+peso).add(
-            				deporte+","+edad+","+noc+","+equipo+","+juegos+","+
-            		ciudad+","+evento+","+medalla);
-            		if(!mapaDeportes.containsKey(deporte)) {
-						mapaDeportes.put(deporte, new ArrayList<String>());
-					}
-					mapaDeportes.get(deporte).add(edad+","+noc+","+equipo+","+
-					juegos+","+ciudad+","+evento+","+medalla);
+        			if(!dep.mapaParticipacion.containsKey(deporte)) {
+        				dep.creaMapa(deporte);
+        			}
+        			dep.aniadeElemento(deporte, new Participacion(edad, noc, equipo, juegos, ciudad, evento, medalla));
             	}
             }
             for(int i=0;i<values.length;i++) {
@@ -244,40 +220,23 @@ public class ud2_3 {
 			Document doc=docBuilder.newDocument();
 			Element deportistas=doc.createElement("deportistas");
 			doc.appendChild(deportistas);
-			int cont=1;
-			for(Entry<String,ArrayList<String>>entrada:
-        		mapa.entrySet()){
+			Iterator<Deportista> it=lstDeportistas.iterator();
+			while (it.hasNext()){
+				Deportista dep=it.next();
 				Element deportista=doc.createElement("deportista");
-				String[] persona=entrada.getKey().split(",");
-				for(int i=0;i<persona.length;i++) {
-					if(persona[i].charAt(0)=='\"') {
-						persona[i]=persona[i].substring(1,persona[i].
-								length()-1);
-					}
-				}
-				deportista.setAttribute("id", persona[0]);
-				aniadeElemento(doc, deportista, "nombre", persona[1]);
-				aniadeElemento(doc, deportista, "sexo", persona[2]);
-				aniadeElemento(doc, deportista, "altura", persona[3]);
-				aniadeElemento(doc, deportista, "peso", persona[4]);
-				for(String juego:mapa.get(persona[0]+","+persona[1]+","
-				+persona[2]+","+persona[3]+","+persona[4])) {
+				deportista.setAttribute("id", dep.id+"");
+				aniadeElemento(doc, deportista, "nombre", dep.nombre);
+				aniadeElemento(doc, deportista, "sexo", dep.sexo+"");
+				aniadeElemento(doc, deportista, "altura", dep.altura+"");
+				aniadeElemento(doc, deportista, "peso", dep.peso+"");
+				
+				for(Entry<String, ArrayList<Participacion>> partic:dep.mapaParticipacion.entrySet()) {
 					Element deporte=doc.createElement("deporte");
-					String[] elementosDeporte= juego.split(",");
-					for(int i=0;i<elementosDeporte.length;i++) {
-						if(elementosDeporte[i].charAt(0)=='\"') {
-							elementosDeporte[i]=elementosDeporte[i].substring
-									(1, elementosDeporte[i].length()-1);
-						}
-					}
-					
-					deporte.setAttribute("nombre", elementosDeporte[0]);
-					aniadirParticipacion(mapaDeportes, doc, deporte, elementosDeporte);
+					deporte.setAttribute("nombre", partic.getKey());
+					aniadirParticipacion(dep, doc, deporte,partic.getKey());
 					deportista.appendChild(deporte);
 				}
   			 	deportistas.appendChild(deportista);
-  			 	System.out.println(cont);
-  			 	cont++;
 			}
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	        Transformer transformer = transformerFactory.newTransformer();
@@ -298,28 +257,21 @@ public class ud2_3 {
 		}
 	}
 
-	private static void aniadirParticipacion(HashMap<String, ArrayList<String>> mapaDeportes, Document doc, Element deporte, String[] elementosDeporte) {
-		 StringBuilder juegosBuilder = new StringBuilder();
-		 ArrayList<String> depos=mapaDeportes.get(elementosDeporte[0]);
-		 Iterator<String> iterator = depos.iterator();
+	private static void aniadirParticipacion(Deportista dep, Document doc, Element deporte, String particKey) {
+		 Iterator<Participacion> iterator = dep.mapaParticipacion.get(particKey).iterator();
 		while(iterator.hasNext()) {
-			iterator.next();
+			Participacion par=iterator.next();
 			Element participacion=doc.createElement("participacion");
-			participacion.setAttribute("age",elementosDeporte[1]);
+			participacion.setAttribute("age",par.edad+"");
 			Element equipo=doc.createElement("equipo");
-			equipo.setAttribute("abbr", elementosDeporte[2]);
-			equipo.setTextContent(elementosDeporte[3]);
+			equipo.setAttribute("abbr", par.noc);
+			equipo.setTextContent(par.equipo);
 			participacion.appendChild(equipo);
-			 juegosBuilder.setLength(0);
-		        juegosBuilder.append(elementosDeporte[4]).append(" - ").append(elementosDeporte[5]);
-			aniadeElemento(doc, participacion, "juegos", juegosBuilder.toString());
-			aniadeElemento(doc, participacion, "evento", elementosDeporte[6]);
-			aniadeElemento(doc, participacion, "medalla",elementosDeporte[7]);
+			aniadeElemento(doc, participacion, "juegos", par.juegos+"-"+par.ciudad);
+			aniadeElemento(doc, participacion, "evento", par.evento);
+			aniadeElemento(doc, participacion, "medalla",par.medalla);
 			deporte.appendChild(participacion);
-			equipo=null;
-			participacion=null;
 		}
-		System.gc();
 	}
 	
 	private static void aniadeElemento(Document doc, Element rowElement, String header, String texto) {
@@ -330,8 +282,13 @@ public class ud2_3 {
 	
 	private static void mostrarListado() {
 		 try {
-			XMLReader lectorXML=XMLReaderFactory.createXMLReader();
-		} catch (SAXException e) {
+			 XMLReader procesadorXML=XMLReaderFactory.createXMLReader();
+			 GestorContenido gestor=new GestorContenido();
+			 procesadorXML.setContentHandler(gestor);
+			 InputSource fileXML=new InputSource("Datos_Olimpiadas/olimpiadas.xml");
+			 procesadorXML.parse(fileXML);
+			
+		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -355,5 +312,90 @@ public class ud2_3 {
 			break;
 		}
 		input.close();
+	}
+}
+class Participacion{
+	int edad;
+	String noc;
+	String equipo;
+	String juegos;
+	String ciudad;
+	String evento;
+	String medalla;
+	
+	public Participacion(int edad,String noc,String equipo,String juegos,String ciudad,String evento,String medalla) {
+		this.edad=edad;
+		this.noc=noc;
+		this.equipo=equipo;
+		this.juegos=juegos;
+		this.ciudad=ciudad;
+		this.evento=evento;
+		this.medalla=medalla;
+	}
+}
+class Deportista {
+	int id;
+	String nombre;
+	char sexo;
+	int altura;
+	float peso;
+	HashMap<String, ArrayList<Participacion>> mapaParticipacion;
+	
+	public Deportista(int id,String nombre,char sexo,int altura,float peso) {
+		this.id=id;
+		this.nombre=nombre;
+		this.sexo=sexo;
+		this.altura=altura;
+		this.peso=peso;
+		this.mapaParticipacion=new HashMap<String, ArrayList<Participacion>>();
+	}
+	
+	void creaMapa(String deporte) {
+		this.mapaParticipacion.put(deporte,new ArrayList<Participacion>());
+	}
+	
+	void aniadeElemento(String deporte,Participacion participacion) {
+		this.mapaParticipacion.get(deporte).add(participacion);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Deportista other = (Deportista) obj;
+		return id == other.id;
+	}
+}
+
+class GestorContenido extends DefaultHandler{
+	
+	String anio="";
+	boolean esJuego=false;
+	
+	@Override
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		 if (qName.equalsIgnoreCase("olimpiada")) {
+             anio = attributes.getValue("year");
+         }
+		 if (qName.equalsIgnoreCase("juegos")) {
+             esJuego = true;
+         }
+	}
+	@Override
+	public void characters(char[] ch, int start, int length) throws SAXException {
+		if (esJuego) {
+            String juego = new String(ch, start, length).trim();
+            System.out.println("Games: " + juego + ", Year: " + anio);
+            esJuego = false;
+        }
 	}
 }

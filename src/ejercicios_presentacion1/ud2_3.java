@@ -1,3 +1,4 @@
+
 package ejercicios_presentacion1;
 
 import java.io.BufferedReader;
@@ -34,8 +35,14 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+/**
+ * Clase ud2_3.
+ */
 public class ud2_3 {
 	
+	/**
+	 * Crear xml olimpiadas basado en olimpiadas.csv.
+	 */
 	private static void crearXmlOlimpiadas() {
 		try(BufferedReader br=new BufferedReader(new FileReader("Datos_Olimpiadas/olimpiadas.csv"))){
 			DocumentBuilderFactory docFactory=DocumentBuilderFactory.newInstance();
@@ -103,6 +110,10 @@ public class ud2_3 {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Crear xml deportistas de athete_events.csv.
+	 */
 	private static void crearXmlDeportistas() {
 		ArrayList<Deportista> lstDeportistas=new ArrayList<Deportista>();
 		try (BufferedReader br = new BufferedReader(new FileReader(
@@ -257,6 +268,14 @@ public class ud2_3 {
 		}
 	}
 
+	/**
+	 * Aniadir participacion.
+	 *
+	 * @param dep El dep
+	 * @param doc El doc
+	 * @param deporte El deporte
+	 * @param particKey El partickey
+	 */
 	private static void aniadirParticipacion(Deportista dep, Document doc, Element deporte, String particKey) {
 		 Iterator<Participacion> iterator = dep.mapaParticipacion.get(particKey).iterator();
 		while(iterator.hasNext()) {
@@ -274,12 +293,23 @@ public class ud2_3 {
 		}
 	}
 	
+	/**
+	 * Aniade elemento.
+	 *
+	 * @param doc El doc
+	 * @param rowElement El elemento padre
+	 * @param header El header
+	 * @param texto El texto
+	 */
 	private static void aniadeElemento(Document doc, Element rowElement, String header, String texto) {
 		Element elemento=doc.createElement(header);
 		elemento.appendChild(doc.createTextNode(texto));
 		rowElement.appendChild(elemento);
 	}
 	
+	/**
+	 * Mostrar listado de olimpiadas.xml.
+	 */
 	private static void mostrarListado() {
 		 try {
 			 XMLReader procesadorXML=XMLReaderFactory.createXMLReader();
@@ -293,6 +323,11 @@ public class ud2_3 {
 		}
 	}
 
+	/**
+	 * El metodo main.
+	 *
+	 * @param args los argumentos que se reciben por consola, ninguno
+	 */
 	public static void main(String[] args) {
 		Scanner input=new Scanner(System.in);
 		System.out.println("1. Crear fichero XML de olimpiadas");
@@ -315,14 +350,39 @@ public class ud2_3 {
 	}
 }
 class Participacion{
+	
+	/** La edad. */
 	int edad;
+	
+	/** El noc. */
 	String noc;
+	
+	/** El equipo. */
 	String equipo;
+	
+	/** Los juegos. */
 	String juegos;
+	
+	/** La ciudad. */
 	String ciudad;
+	
+	/** El evento. */
 	String evento;
+	
+	/** La medalla. */
 	String medalla;
 	
+	/**
+	 * construccion de participacion.
+	 *
+	 * @param edad La edad
+	 * @param noc El noc
+	 * @param equipo El equipo
+	 * @param juegos Los juegos
+	 * @param ciudad La ciudad
+	 * @param evento El evento
+	 * @param medalla La medalla
+	 */
 	public Participacion(int edad,String noc,String equipo,String juegos,String ciudad,String evento,String medalla) {
 		this.edad=edad;
 		this.noc=noc;
@@ -333,14 +393,39 @@ class Participacion{
 		this.medalla=medalla;
 	}
 }
+
+/**
+ * Clase Deportista.
+ */
 class Deportista {
+	
+	/** El id. */
 	int id;
+	
+	/** El nombre. */
 	String nombre;
+	
+	/** El sexo. */
 	char sexo;
+	
+	/** La altura. */
 	int altura;
+	
+	/** El peso. */
 	float peso;
+	
+	/** El mapa participacion. */
 	HashMap<String, ArrayList<Participacion>> mapaParticipacion;
 	
+	/**
+	 * Constructor deportista.
+	 *
+	 * @param id El id
+	 * @param nombre El nombre
+	 * @param sexo El sexo
+	 * @param altura La altura
+	 * @param peso El peso
+	 */
 	public Deportista(int id,String nombre,char sexo,int altura,float peso) {
 		this.id=id;
 		this.nombre=nombre;
@@ -350,19 +435,41 @@ class Deportista {
 		this.mapaParticipacion=new HashMap<String, ArrayList<Participacion>>();
 	}
 	
+	/**
+	 * Crea mapa de deporte.
+	 *
+	 * @param deporte El deporte
+	 */
 	void creaMapa(String deporte) {
 		this.mapaParticipacion.put(deporte,new ArrayList<Participacion>());
 	}
 	
+	/**
+	 * Aniade elemento.
+	 *
+	 * @param deporte El deporte
+	 * @param participacion La participacion
+	 */
 	void aniadeElemento(String deporte,Participacion participacion) {
 		this.mapaParticipacion.get(deporte).add(participacion);
 	}
 
+	/**
+	 * Hash code.
+	 *
+	 * @return the int
+	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
 	}
 
+	/**
+	 * Equals.
+	 *
+	 * @param obj El obj
+	 * @return true, si son iguales
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -376,26 +483,57 @@ class Deportista {
 	}
 }
 
+/**
+ * clase GestorContenido.
+ */
 class GestorContenido extends DefaultHandler{
 	
+	/** El anio. */
 	String anio="";
+	
+	String juego;
+	
+	/** El esJuego. */
 	boolean esJuego=false;
 	
+	/**
+	 * Start element.
+	 *
+	 * @param uri El uri
+	 * @param localName El local name
+	 * @param qName El q name
+	 * @param attributes Los attributes
+	 * @throws SAXException La SAX exception
+	 */
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		 if (qName.equalsIgnoreCase("olimpiada")) {
+		 if (qName.equals("Olimpiada")) {
              anio = attributes.getValue("year");
          }
 		 if (qName.equalsIgnoreCase("juegos")) {
              esJuego = true;
          }
 	}
+	
+	/**
+	 * Characters.
+	 *
+	 * @param ch El ch
+	 * @param start El indice  start
+	 * @param length La longitud
+	 * @throws SAXException La SAX exception
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		if (esJuego) {
-            String juego = new String(ch, start, length).trim();
-            System.out.println("Games: " + juego + ", Year: " + anio);
+            juego = new String(ch, start, length).trim();
             esJuego = false;
         }
+	}
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if(qName.equals("Olimpiada")) {
+			System.out.println("Games: " + juego + ", Year: " + anio);
+		}
 	}
 }
